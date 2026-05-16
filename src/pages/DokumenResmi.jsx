@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { FileText, BookOpen, Radio, BarChart2, Scale, Search, Eye, Download } from 'lucide-react';
 import { dokumenResmiData } from '../data/dummyData';
+import { useToast } from '../contexts/ToastContext';
+import Modal from '../components/Modal';
 
 const iconMap = {
   Juknis: FileText,
@@ -12,17 +14,55 @@ const iconMap = {
 
 const PAGE_SIZE = 8;
 
+function parseTanggalID(s) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const [day, mon, year] = s.split(' ');
+  const m = months.findIndex((x) => mon?.startsWith(x));
+  return new Date(parseInt(year), m, parseInt(day)).getTime();
+}
+
+function parseUkuran(s) {
+  const m = s.match(/([\d.]+)\s*(MB|KB|GB)/i);
+  if (!m) return 0;
+  const v = parseFloat(m[1]);
+  return m[2].toUpperCase() === 'KB' ? v * 1024 : m[2].toUpperCase() === 'GB' ? v * 1024 * 1024 : v * 1024 * 1024;
+}
+
 export default function DokumenResmi() {
+  const toast = useToast();
   const [search, setSearch] = useState('');
   const [kategori, setKategori] = useState('');
+  const [jenis, setJenis] = useState('');
+  const [sortBy, setSortBy] = useState('terbaru');
   const [page, setPage] = useState(1);
+  const [preview, setPreview] = useState(null);
 
-  const filtered = dokumenResmiData.dokumen.filter(d =>
+  let filtered = dokumenResmiData.dokumen.filter((d) =>
     (!search || d.nama.toLowerCase().includes(search.toLowerCase())) &&
-    (!kategori || d.kategori === kategori)
+    (!kategori || d.kategori === kategori) &&
+    (!jenis || d.jenis === jenis)
   );
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  filtered = [...filtered].sort((a, b) => {
+    if (sortBy === 'terbaru') return parseTanggalID(b.tanggal) - parseTanggalID(a.tanggal);
+    if (sortBy === 'terlama') return parseTanggalID(a.tanggal) - parseTanggalID(b.tanggal);
+    if (sortBy === 'nama') return a.nama.localeCompare(b.nama);
+    if (sortBy === 'ukuran') return parseUkuran(b.ukuran) - parseUkuran(a.ukuran);
+    return 0;
+  });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageData = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleDownload = (d) => {
+    const txt = `[DEMO] ${d.nama}\nKategori: ${d.kategori}\nTanggal: ${d.tanggal}\nUkuran: ${d.ukuran}\n\nFile asli tidak tersedia di mode demo.`;
+    const blob = new Blob([txt], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${d.nama.replace(/[^a-z0-9]/gi, '_')}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Unduhan dimulai: ${d.nama}`);
+  };
 
   return (
     <div>
@@ -77,17 +117,17 @@ export default function DokumenResmi() {
             <option key={k.nama}>{k.nama}</option>
           ))}
         </select>
-        <select className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50">
-          <option>Semua Jenis</option>
-          <option>PDF</option>
-          <option>XLSX</option>
-          <option>DOC</option>
+        <select value={jenis} onChange={(e) => { setJenis(e.target.value); setPage(1); }} className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50">
+          <option value="">Semua Jenis</option>
+          <option value="PDF">PDF</option>
+          <option value="XLSX">XLSX</option>
+          <option value="DOCX">DOCX</option>
         </select>
-        <select className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50">
-          <option>Terbaru Dulu</option>
-          <option>Terlama Dulu</option>
-          <option>Nama A-Z</option>
-          <option>Ukuran Terbesar</option>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50">
+          <option value="terbaru">Terbaru Dulu</option>
+          <option value="terlama">Terlama Dulu</option>
+          <option value="nama">Nama A-Z</option>
+          <option value="ukuran">Ukuran Terbesar</option>
         </select>
       </div>
 
@@ -138,13 +178,11 @@ export default function DokumenResmi() {
                     <td className="px-5 py-3 text-slate-500 text-xs">{d.ukuran}</td>
                     <td className="px-5 py-3">
                       <div className="flex gap-1.5">
-                        <button className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200 font-medium transition-colors">
-                          <Eye size={12} />
-                          Lihat
+                        <button onClick={() => setPreview(d)} className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200 font-medium transition-colors">
+                          <Eye size={12} /> Lihat
                         </button>
-                        <button className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200 font-medium transition-colors">
-                          <Download size={12} />
-                          Unduh
+                        <button onClick={() => handleDownload(d)} className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200 font-medium transition-colors">
+                          <Download size={12} /> Unduh
                         </button>
                       </div>
                     </td>
@@ -189,6 +227,34 @@ export default function DokumenResmi() {
           )}
         </div>
       </div>
+
+      <Modal open={!!preview} onClose={() => setPreview(null)} title="Pratinjau Dokumen" size="lg">
+        {preview && (
+          <div>
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-14 h-14 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText size={28} className="text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800">{preview.nama}</h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  {preview.kategori} • {preview.jenis} • {preview.ukuran} • {preview.tanggal}
+                </p>
+              </div>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-8 text-center">
+              <FileText size={48} className="mx-auto text-slate-300 mb-3" />
+              <p className="text-sm text-slate-600 font-medium">Pratinjau dokumen tidak tersedia di mode demo</p>
+              <p className="text-xs text-slate-400 mt-1">
+                Pada lingkungan produksi, viewer dokumen akan ditampilkan di sini.
+              </p>
+              <button onClick={() => handleDownload(preview)} className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[#1B4F72] text-white text-sm rounded-lg hover:bg-[#154060]">
+                <Download size={14} /> Unduh dokumen
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

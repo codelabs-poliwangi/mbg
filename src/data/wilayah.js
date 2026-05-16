@@ -1,0 +1,73 @@
+// Data wilayah Indonesia: 38 provinsi dengan koordinat tengah, kabupaten/kota
+// untuk chained dropdown, dan estimasi jumlah SPPG per provinsi.
+
+export const provinsiList = [
+  { kode: 'ID-AC', nama: 'Aceh', lat: 4.70, lng: 96.74, sppg: 67 },
+  { kode: 'ID-SU', nama: 'Sumatera Utara', lat: 2.19, lng: 99.06, sppg: 143 },
+  { kode: 'ID-SB', nama: 'Sumatera Barat', lat: -0.74, lng: 100.80, sppg: 78 },
+  { kode: 'ID-RI', nama: 'Riau', lat: 0.50, lng: 101.44, sppg: 89 },
+  { kode: 'ID-KR', nama: 'Kepulauan Riau', lat: 0.92, lng: 104.46, sppg: 41 },
+  { kode: 'ID-JA', nama: 'Jambi', lat: -1.61, lng: 103.61, sppg: 56 },
+  { kode: 'ID-SS', nama: 'Sumatera Selatan', lat: -3.32, lng: 103.91, sppg: 98 },
+  { kode: 'ID-BE', nama: 'Bengkulu', lat: -3.79, lng: 102.26, sppg: 34 },
+  { kode: 'ID-LA', nama: 'Lampung', lat: -4.56, lng: 105.40, sppg: 67 },
+  { kode: 'ID-BB', nama: 'Kepulauan Bangka Belitung', lat: -2.74, lng: 106.44, sppg: 28 },
+  { kode: 'ID-JK', nama: 'DKI Jakarta', lat: -6.21, lng: 106.84, sppg: 187 },
+  { kode: 'ID-BT', nama: 'Banten', lat: -6.40, lng: 106.06, sppg: 72 },
+  { kode: 'ID-JB', nama: 'Jawa Barat', lat: -6.92, lng: 107.61, sppg: 312 },
+  { kode: 'ID-JT', nama: 'Jawa Tengah', lat: -7.15, lng: 110.14, sppg: 289 },
+  { kode: 'ID-YO', nama: 'DI Yogyakarta', lat: -7.80, lng: 110.36, sppg: 45 },
+  { kode: 'ID-JI', nama: 'Jawa Timur', lat: -7.54, lng: 112.23, sppg: 301 },
+  { kode: 'ID-BA', nama: 'Bali', lat: -8.40, lng: 115.19, sppg: 51 },
+  { kode: 'ID-NB', nama: 'Nusa Tenggara Barat', lat: -8.65, lng: 117.36, sppg: 63 },
+  { kode: 'ID-NT', nama: 'Nusa Tenggara Timur', lat: -8.66, lng: 121.07, sppg: 67 },
+  { kode: 'ID-KB', nama: 'Kalimantan Barat', lat: -0.27, lng: 111.47, sppg: 78 },
+  { kode: 'ID-KT', nama: 'Kalimantan Tengah', lat: -1.68, lng: 113.38, sppg: 89 },
+  { kode: 'ID-KS', nama: 'Kalimantan Selatan', lat: -3.09, lng: 115.28, sppg: 56 },
+  { kode: 'ID-KI', nama: 'Kalimantan Timur', lat: 0.79, lng: 116.42, sppg: 87 },
+  { kode: 'ID-KU', nama: 'Kalimantan Utara', lat: 3.07, lng: 116.04, sppg: 34 },
+  { kode: 'ID-SA', nama: 'Sulawesi Utara', lat: 1.49, lng: 124.84, sppg: 42 },
+  { kode: 'ID-GO', nama: 'Gorontalo', lat: 0.69, lng: 122.59, sppg: 21 },
+  { kode: 'ID-ST', nama: 'Sulawesi Tengah', lat: -1.43, lng: 121.45, sppg: 48 },
+  { kode: 'ID-SR', nama: 'Sulawesi Barat', lat: -2.84, lng: 119.23, sppg: 29 },
+  { kode: 'ID-SN', nama: 'Sulawesi Selatan', lat: -3.69, lng: 119.97, sppg: 98 },
+  { kode: 'ID-SG', nama: 'Sulawesi Tenggara', lat: -4.14, lng: 122.18, sppg: 35 },
+  { kode: 'ID-MA', nama: 'Maluku', lat: -3.24, lng: 130.14, sppg: 31 },
+  { kode: 'ID-MU', nama: 'Maluku Utara', lat: 1.57, lng: 127.81, sppg: 24 },
+  { kode: 'ID-PD', nama: 'Papua Barat Daya', lat: -1.07, lng: 131.30, sppg: 11 },
+  { kode: 'ID-PB', nama: 'Papua Barat', lat: -1.34, lng: 133.74, sppg: 15 },
+  { kode: 'ID-PA', nama: 'Papua', lat: -4.27, lng: 138.08, sppg: 23 },
+  { kode: 'ID-PT', nama: 'Papua Tengah', lat: -3.36, lng: 136.79, sppg: 12 },
+  { kode: 'ID-PE', nama: 'Papua Pegunungan', lat: -4.32, lng: 138.95, sppg: 8 },
+  { kode: 'ID-PS', nama: 'Papua Selatan', lat: -7.66, lng: 139.40, sppg: 9 },
+];
+
+export const kabupatenByProvinsi = {
+  'DKI Jakarta': ['Jakarta Pusat', 'Jakarta Utara', 'Jakarta Barat', 'Jakarta Selatan', 'Jakarta Timur', 'Kep. Seribu'],
+  'Jawa Barat': ['Kota Bandung', 'Kab. Bandung', 'Kota Bekasi', 'Kab. Bekasi', 'Kota Bogor', 'Kab. Bogor', 'Kota Cimahi', 'Kab. Cianjur', 'Kab. Garut', 'Kab. Sumedang'],
+  'Jawa Tengah': ['Kota Semarang', 'Kota Surakarta', 'Kab. Banyumas', 'Kab. Cilacap', 'Kab. Kudus', 'Kab. Magelang', 'Kab. Pati'],
+  'Jawa Timur': ['Kota Surabaya', 'Kota Malang', 'Kab. Sidoarjo', 'Kab. Gresik', 'Kab. Jember', 'Kab. Banyuwangi', 'Kab. Mojokerto'],
+  'DI Yogyakarta': ['Kota Yogyakarta', 'Kab. Sleman', 'Kab. Bantul', 'Kab. Kulon Progo', 'Kab. Gunungkidul'],
+  'Banten': ['Kota Tangerang', 'Kota Serang', 'Kota Cilegon', 'Kab. Tangerang', 'Kab. Lebak'],
+  'Sumatera Utara': ['Kota Medan', 'Kab. Deli Serdang', 'Kab. Karo', 'Kota Pematangsiantar', 'Kab. Simalungun'],
+  'Sumatera Barat': ['Kota Padang', 'Kota Bukittinggi', 'Kab. Agam', 'Kab. Pesisir Selatan'],
+  'Sulawesi Selatan': ['Kota Makassar', 'Kab. Gowa', 'Kab. Maros', 'Kab. Bone', 'Kota Parepare'],
+  'Bali': ['Kota Denpasar', 'Kab. Badung', 'Kab. Gianyar', 'Kab. Buleleng'],
+  'Papua Pegunungan': ['Kab. Jayawijaya', 'Kab. Yahukimo', 'Kab. Pegunungan Bintang'],
+  'Papua Tengah': ['Kab. Nabire', 'Kab. Mimika', 'Kab. Paniai'],
+  'Nusa Tenggara Timur': ['Kota Kupang', 'Kab. Sikka', 'Kab. Manggarai', 'Kab. Belu'],
+  'Maluku Utara': ['Kota Ternate', 'Kota Tidore Kepulauan', 'Kab. Halmahera Barat', 'Kab. Halmahera Utara'],
+  'Kalimantan Utara': ['Kota Tarakan', 'Kab. Bulungan', 'Kab. Nunukan'],
+};
+
+export const kecamatanByKabupaten = {
+  'Jakarta Pusat': ['Menteng', 'Tanah Abang', 'Gambir', 'Kemayoran', 'Sawah Besar', 'Senen', 'Cempaka Putih', 'Johar Baru'],
+  'Jakarta Selatan': ['Kebayoran Baru', 'Pancoran', 'Tebet', 'Setiabudi', 'Mampang Prapatan', 'Cilandak'],
+  'Kota Bandung': ['Coblong', 'Cidadap', 'Sukasari', 'Sukajadi', 'Cicendo', 'Bojongloa Kaler', 'Andir'],
+  'Kab. Sleman': ['Depok', 'Ngaglik', 'Ngemplak', 'Pakem', 'Cangkringan', 'Mlati'],
+  'Kota Surabaya': ['Gubeng', 'Wonokromo', 'Tegalsari', 'Genteng', 'Bubutan', 'Rungkut'],
+  'Kota Makassar': ['Tamalanrea', 'Biringkanaya', 'Manggala', 'Rappocini', 'Mariso', 'Wajo'],
+  'Kab. Jayawijaya': ['Wamena', 'Wouma', 'Hubikiak', 'Itlay Hisage'],
+};
+
+export const allKabupaten = Object.values(kabupatenByProvinsi).flat();

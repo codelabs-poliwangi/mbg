@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ToastProvider } from './contexts/ToastContext';
 import Layout from './components/Layout';
 import Beranda from './pages/Beranda';
 import PetaSPPG from './pages/PetaSPPG';
@@ -16,6 +17,7 @@ import NotFound from './pages/NotFound';
 export default function App() {
   return (
     <BrowserRouter>
+      <ToastProvider>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Beranda />} />
@@ -32,6 +34,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </ToastProvider>
     </BrowserRouter>
   );
 }

@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { MessageSquare, Clock, CheckCircle, AlertCircle, Send } from 'lucide-react';
+import { MessageSquare, Clock, CheckCircle, AlertCircle, Send, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatCard from '../components/StatCard';
 import StatusBadge from '../components/StatusBadge';
 import { laporanWargaData } from '../data/dummyData';
+import { api } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 export default function LaporanWarga() {
+  const toast = useToast();
   const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     kategori: '',
     wilayah: '',
@@ -15,13 +19,24 @@ export default function LaporanWarga() {
     nama: '',
     email: '',
   });
-  const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setShowForm(false);
-    setTimeout(() => setSubmitted(false), 5000);
+    if (!form.kategori || !form.wilayah || !form.deskripsi || !form.nama || !form.email) {
+      toast.error('Mohon lengkapi semua field yang wajib diisi.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const result = await api.laporanWarga.submit(form);
+      toast.success(`Laporan ${result.id} berhasil dikirim. Tim akan menindaklanjuti dalam 2x24 jam.`, { title: 'Laporan Terkirim' });
+      setShowForm(false);
+      setForm({ kategori: '', wilayah: '', sekolah: '', deskripsi: '', nama: '', email: '' });
+    } catch (err) {
+      toast.error('Gagal mengirim laporan. Silakan coba lagi.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -39,13 +54,6 @@ export default function LaporanWarga() {
           Buat Laporan Baru
         </button>
       </div>
-
-      {submitted && (
-        <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-700 flex items-center gap-3">
-          <CheckCircle size={18} />
-          Laporan berhasil dikirim! ID laporan Anda: LW-2025-011. Kami akan merespon dalam 2-3 hari kerja.
-        </div>
-      )}
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-6">
@@ -133,10 +141,11 @@ export default function LaporanWarga() {
             <div className="col-span-2 flex gap-3">
               <button
                 type="submit"
-                className="bg-[#1B4F72] text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-[#154060] transition-colors flex items-center gap-2"
+                disabled={submitting}
+                className="bg-[#1B4F72] text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-[#154060] transition-colors flex items-center gap-2 disabled:opacity-60 disabled:cursor-wait"
               >
-                <Send size={15} />
-                Kirim Laporan
+                {submitting ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+                {submitting ? 'Mengirim…' : 'Kirim Laporan'}
               </button>
               <button
                 type="button"
@@ -195,51 +204,69 @@ export default function LaporanWarga() {
         </div>
       </div>
 
-      {/* Reports Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-100">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-700">Daftar Laporan Terkini</h2>
-          <div className="flex gap-2">
-            <select className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-slate-50">
-              <option>Semua Status</option>
-              <option>Menunggu</option>
-              <option>Diproses</option>
-              <option>Selesai</option>
-            </select>
-            <select className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-slate-50">
-              <option>Semua Prioritas</option>
-              <option>Tinggi</option>
-              <option>Sedang</option>
-              <option>Rendah</option>
-            </select>
-          </div>
+      <ReportsTable />
+    </div>
+  );
+}
+
+function ReportsTable() {
+  const [filter, setFilter] = useState({ status: '', prioritas: '', q: '' });
+  const filtered = laporanWargaData.laporan.filter((l) => {
+    if (filter.status && l.status !== filter.status) return false;
+    if (filter.prioritas && l.prioritas !== filter.prioritas) return false;
+    if (filter.q) {
+      const q = filter.q.toLowerCase();
+      if (!l.kategori.toLowerCase().includes(q) && !l.lokasi.toLowerCase().includes(q) && !l.id.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100">
+      <div className="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-sm font-semibold text-slate-700">Daftar Laporan Terkini</h2>
+        <div className="flex gap-2 flex-wrap">
+          <input value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} placeholder="Cari ID/kategori/lokasi…" className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-slate-50 w-52 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })} className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-slate-50">
+            <option value="">Semua Status</option>
+            <option>Menunggu</option>
+            <option>Diproses</option>
+            <option>Selesai</option>
+          </select>
+          <select value={filter.prioritas} onChange={(e) => setFilter({ ...filter, prioritas: e.target.value })} className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-slate-50">
+            <option value="">Semua Prioritas</option>
+            <option>Tinggi</option>
+            <option>Sedang</option>
+            <option>Rendah</option>
+          </select>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">ID LAPORAN</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">TANGGAL</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">KATEGORI</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">LOKASI</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">PRIORITAS</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">STATUS</th>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">ID LAPORAN</th>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">TANGGAL</th>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">KATEGORI</th>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">LOKASI</th>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">PRIORITAS</th>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">STATUS</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {filtered.length === 0 ? (
+              <tr><td colSpan={6} className="px-5 py-10 text-center text-slate-400 text-sm">Tidak ada laporan yang cocok.</td></tr>
+            ) : filtered.map((l) => (
+              <tr key={l.id} className="hover:bg-slate-50">
+                <td className="px-5 py-3 font-mono text-xs text-blue-600 font-medium">{l.id}</td>
+                <td className="px-5 py-3 text-slate-500 text-xs">{l.tanggal}</td>
+                <td className="px-5 py-3 text-slate-700 text-xs">{l.kategori}</td>
+                <td className="px-5 py-3 text-slate-600 text-xs">{l.lokasi}</td>
+                <td className="px-5 py-3"><StatusBadge status={l.prioritas} /></td>
+                <td className="px-5 py-3"><StatusBadge status={l.status} /></td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {laporanWargaData.laporan.map((l) => (
-                <tr key={l.id} className="hover:bg-slate-50">
-                  <td className="px-5 py-3 font-mono text-xs text-blue-600 font-medium">{l.id}</td>
-                  <td className="px-5 py-3 text-slate-500 text-xs">{l.tanggal}</td>
-                  <td className="px-5 py-3 text-slate-700 text-xs">{l.kategori}</td>
-                  <td className="px-5 py-3 text-slate-600 text-xs">{l.lokasi}</td>
-                  <td className="px-5 py-3"><StatusBadge status={l.prioritas} /></td>
-                  <td className="px-5 py-3"><StatusBadge status={l.status} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

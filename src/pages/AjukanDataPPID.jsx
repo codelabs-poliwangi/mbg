@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { FileQuestion, CheckCircle, Clock, Send, Save } from 'lucide-react';
+import { FileQuestion, CheckCircle, Clock, Send, Save, Loader2 } from 'lucide-react';
+import { api } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 const steps = [
   { id: 1, label: 'Draft', desc: 'Permohonan dibuat' },
@@ -17,21 +19,48 @@ const contohData = [
   { no: 5, judul: 'Data Menu Harian per SPPG', keterangan: 'Rencana menu makanan harian per satuan SPPG' },
 ];
 
+const STORAGE_KEY = 'ppid_draft';
+
 export default function AjukanDataPPID() {
-  const [currentStep] = useState(1);
-  const [form, setForm] = useState({
-    jenisData: '',
-    wilayah: '',
-    periode: '',
-    format: '',
-    alasan: '',
-    ringkasan: '',
+  const toast = useToast();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [nomor, setNomor] = useState('');
+  const [form, setForm] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : { jenisData: '', wilayah: '', periode: '', format: '', alasan: '', ringkasan: '' };
+    } catch {
+      return { jenisData: '', wilayah: '', periode: '', format: '', alasan: '', ringkasan: '' };
+    }
   });
-  const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+      toast.success('Draft disimpan ke browser. Anda bisa melanjutkan nanti.');
+    } catch {
+      toast.error('Gagal menyimpan draft.');
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!form.jenisData || !form.alasan || !form.ringkasan) {
+      toast.error('Mohon lengkapi Jenis Data, Alasan, dan Ringkasan.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await api.ppid.submit(form);
+      setNomor(res.nomor);
+      setCurrentStep(2);
+      localStorage.removeItem(STORAGE_KEY);
+      toast.success(`Permohonan ${res.nomor} terkirim. Pantau status di kolom kanan.`, { title: 'Permohonan Diterima' });
+    } catch {
+      toast.error('Gagal mengirim permohonan. Coba lagi beberapa saat.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -50,10 +79,10 @@ export default function AjukanDataPPID() {
               Form Permohonan Data
             </h2>
 
-            {saved && (
+            {nomor && (
               <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700 flex items-center gap-2">
                 <CheckCircle size={15} />
-                Draft berhasil disimpan
+                Permohonan <span className="font-mono font-semibold">{nomor}</span> sedang diproses PPID. Periksa status di panel kanan.
               </div>
             )}
 
@@ -169,14 +198,20 @@ export default function AjukanDataPPID() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={handleSave}
+                  type="button"
                   className="flex items-center gap-2 border border-slate-300 text-slate-700 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
                 >
                   <Save size={15} />
                   Simpan Draft
                 </button>
-                <button className="flex items-center gap-2 bg-[#1B4F72] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#154060] transition-colors">
-                  <Send size={15} />
-                  Kirim Permohonan
+                <button
+                  onClick={handleSubmit}
+                  type="button"
+                  disabled={submitting}
+                  className="flex items-center gap-2 bg-[#1B4F72] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#154060] transition-colors disabled:opacity-60 disabled:cursor-wait"
+                >
+                  {submitting ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+                  {submitting ? 'Mengirim…' : 'Kirim Permohonan'}
                 </button>
               </div>
             </div>

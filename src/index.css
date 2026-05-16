@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Leaflet: paksa z-index rendah agar tidak menutupi header/sidebar/dropdown */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control { z-index: 1 !important; }
+.leaflet-popup-pane,
+.leaflet-tooltip-pane { z-index: 2 !important; }
+.leaflet-container { font-family: inherit; }
+.leaflet-tooltip {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 6px 8px;
+  font-size: 11px;
+}
+.leaflet-popup-content-wrapper { border-radius: 8px; }
+.leaflet-popup-content { margin: 10px 12px; font-size: 12px; }
+
+/* animasi toast */
+@keyframes slide-in-from-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.animate-in.slide-in-from-right { animation: slide-in-from-right 0.2s ease-out; }
+
 * {
   box-sizing: border-box;
   margin: 0;
