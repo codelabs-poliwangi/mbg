@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, RefreshCw, Search, Download, Eye } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Search, Download, Eye, Building2, MapPin, BarChart3, AlertCircle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatusBadge from '../components/StatusBadge';
 import IndonesiaMap from '../components/IndonesiaMap';
@@ -117,26 +117,30 @@ export default function PetaSPPG() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-          <p className="text-xs text-slate-500 font-medium">Total SPPG</p>
-          <p className="text-2xl font-bold text-slate-800 mt-1">2.417</p>
-          <span className="text-xs text-emerald-600 font-medium">▲ +128 (5,59%)</span>
-        </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-          <p className="text-xs text-slate-500 font-medium">Wilayah Terlayani</p>
-          <p className="text-2xl font-bold text-slate-800 mt-1">412</p>
-          <span className="text-xs text-slate-400">Kabupaten/Kota</span>
-        </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-          <p className="text-xs text-slate-500 font-medium">Rasio SPPG/Sekolah</p>
-          <p className="text-2xl font-bold text-slate-800 mt-1">1:8,7</p>
-          <span className="text-xs text-slate-400">Rata-rata nasional</span>
-        </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-          <p className="text-xs text-slate-500 font-medium">Wilayah Tanpa Data</p>
-          <p className="text-2xl font-bold text-red-600 mt-1">28</p>
-          <span className="text-xs text-red-400">Perlu perhatian</span>
-        </div>
+        {[
+          { title: 'Total SPPG', value: '2.417', change: '+128 (5,59%) dari bulan lalu', changePositive: true, icon: Building2, iconColor: 'bg-blue-100', iconTextColor: 'text-blue-600' },
+          { title: 'Wilayah Terlayani', value: '412', subtitle: '18 provinsi, 276 kab/kota', icon: MapPin, iconColor: 'bg-teal-100', iconTextColor: 'text-teal-600' },
+          { title: 'Rasio SPPG/Sekolah', value: '1 : 8,7', change: '0,6 lebih baik dari bulan lalu', changePositive: true, icon: BarChart3, iconColor: 'bg-purple-100', iconTextColor: 'text-purple-600' },
+          { title: 'Wilayah Tanpa Data', value: '28', change: '3 (-9,68%) dari bulan lalu', changePositive: false, icon: AlertCircle, iconColor: 'bg-orange-100', iconTextColor: 'text-orange-500' },
+        ].map((s) => (
+          <div key={s.title} className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] text-slate-500 font-medium">{s.title}</p>
+                <p className={`text-[26px] font-bold mt-0.5 leading-none tracking-tight ${s.title === 'Wilayah Tanpa Data' ? 'text-red-600' : 'text-slate-800'}`}>{s.value}</p>
+                {s.change && (
+                  <p className={`text-[12px] font-semibold mt-1.5 ${s.changePositive ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {s.changePositive ? '▲' : '▼'} {s.change}
+                  </p>
+                )}
+                {!s.change && s.subtitle && <p className="text-[12px] text-slate-400 mt-1.5">{s.subtitle}</p>}
+              </div>
+              <div className={`w-12 h-12 ${s.iconColor} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                <s.icon size={22} className={s.iconTextColor} strokeWidth={1.8} />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 mb-4 flex gap-3 flex-wrap items-center">

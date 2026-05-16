@@ -4,14 +4,14 @@ import StatCard from '../components/StatCard';
 import { formatCurrency, formatNumber, penyaluranDanaData, penerimaManfaatData } from '../data/dummyData';
 
 const berandaStats = [
-  { title: 'Total SPPG Aktif', value: '2,417', change: '+128 bulan ini', iconColor: 'bg-blue-100', iconTextColor: 'text-blue-600', icon: Map },
-  { title: 'Penerima Manfaat', value: '3,847,126', change: '+24,321 pekan ini', iconColor: 'bg-teal-100', iconTextColor: 'text-teal-600', icon: Users },
-  { title: 'Dana Tersalur', value: 'Rp 12,89 T', change: '84.8% dari target', iconColor: 'bg-purple-100', iconTextColor: 'text-purple-600', icon: DollarSign },
-  { title: 'Sekolah Penerima', value: '18,732', change: '78.6% cakupan nasional', iconColor: 'bg-orange-100', iconTextColor: 'text-orange-600', icon: Building2 },
-  { title: 'Laporan Warga', value: '1,247', change: '743 sudah ditindaklanjuti', iconColor: 'bg-red-100', iconTextColor: 'text-red-600', icon: MessageSquare },
-  { title: 'Skor Transparansi', value: '78/100', change: '+6 poin bulan ini', iconColor: 'bg-emerald-100', iconTextColor: 'text-emerald-600', icon: Database },
-  { title: 'Tingkat Keamanan Pangan', value: '91.3%', change: 'dari 1,847 inspeksi', iconColor: 'bg-indigo-100', iconTextColor: 'text-indigo-600', icon: ShieldCheck },
-  { title: 'Mitra Terverifikasi', value: '1,973', change: 'dari 3,565 total', iconColor: 'bg-pink-100', iconTextColor: 'text-pink-600', icon: TrendingUp },
+  { title: 'Total SPPG Aktif', value: '2.417', change: '+128 (5,59%) bulan ini', changePositive: true, iconColor: 'bg-blue-100', iconTextColor: 'text-blue-600', icon: Map },
+  { title: 'Penerima Manfaat', value: '3.847.126', change: '+196.532 (5,38%) bulan ini', changePositive: true, iconColor: 'bg-teal-100', iconTextColor: 'text-teal-600', icon: Users },
+  { title: 'Dana Tersalur', value: 'Rp 12,89 T', change: '84,8% dari target', changePositive: true, iconColor: 'bg-purple-100', iconTextColor: 'text-purple-600', icon: DollarSign },
+  { title: 'Sekolah Penerima', value: '18.732', change: '+842 (4,71%) bulan ini', changePositive: true, iconColor: 'bg-orange-100', iconTextColor: 'text-orange-600', icon: Building2 },
+  { title: 'Laporan Warga', value: '1.247', change: '743 sudah ditindaklanjuti', changePositive: true, iconColor: 'bg-red-100', iconTextColor: 'text-red-600', icon: MessageSquare },
+  { title: 'Skor Transparansi', value: '78/100', change: '+6 poin bulan ini', changePositive: true, iconColor: 'bg-emerald-100', iconTextColor: 'text-emerald-600', icon: Database },
+  { title: 'Keamanan Pangan', value: '91,3%', change: 'dari 1.847 inspeksi', changePositive: true, iconColor: 'bg-indigo-100', iconTextColor: 'text-indigo-600', icon: ShieldCheck },
+  { title: 'Mitra Terverifikasi', value: '1.973', change: '+119 (6,41%) bulan ini', changePositive: true, iconColor: 'bg-pink-100', iconTextColor: 'text-pink-600', icon: TrendingUp },
 ];
 
 const monthlyData = [
